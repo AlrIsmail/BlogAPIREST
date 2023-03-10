@@ -18,6 +18,10 @@ class Database {
             return self::$instance[$table];
         }
 
+        public function getPDO() {
+            return $this->db;
+        }
+
         // select
         public function select($id) {
             $sql = "SELECT * FROM $this->table WHERE id = :id";

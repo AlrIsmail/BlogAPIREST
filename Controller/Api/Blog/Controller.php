@@ -1,7 +1,7 @@
 <?php
-
-require CONTROLLER_PATH . "UserController.php";
-require CONTROLLER_PATH . "ArticleController.php";
+#TODO : remake
+require CONTROLLER_PATH . "Blog/UserController.php";
+require CONTROLLER_PATH . "Blog/ArticleController.php";
 
 /**
  * @throws Exception

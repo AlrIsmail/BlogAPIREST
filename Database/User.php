@@ -1,4 +1,4 @@
-<?
+<?php
 
 class User extends Database {
     public function __construct() {
@@ -23,5 +23,22 @@ class User extends Database {
 
     public function delete($id) {
         return parent::delete($id);
-    } 
+    }
+
+    public function login($data)
+    {
+        $sql = "SELECT * FROM `Users` WHERE username = :username AND password = :password";
+        $stmt = parent::getPDO()->prepare($sql);
+        $stmt->execute(array(
+            ':username' => $data['username'],
+            ':password' => $data['password']
+        ));
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($result) {
+            $_SESSION['user'] = $result;
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
