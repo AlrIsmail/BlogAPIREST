@@ -1,8 +1,8 @@
-<?php
+<?php 
 
-class ArticleDAO extends DAO{
+class Evaluate extends Database{
     public function __construct(){
-        parent::getInstance('Articles');
+        parent::getInstance('Evaluate');
     }
 
     public function select($id){

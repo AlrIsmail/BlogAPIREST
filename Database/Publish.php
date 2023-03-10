@@ -1,6 +1,6 @@
 <?php
 
-class PublishDAO extends DAO{
+class Publish extends Database{
     public function __construct(){
         parent::getInstance('Publish');
     }

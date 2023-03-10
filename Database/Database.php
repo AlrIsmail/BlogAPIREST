@@ -1,6 +1,6 @@
 <?php
 
-class DAO {
+class Database {
     
         private $db;
         private static array $instance = [];
@@ -13,7 +13,7 @@ class DAO {
     
         public static function getInstance($table) {
             if (!isset(self::$instance[$table])) {
-                self::$instance[$table] = new DAO($table);
+                self::$instance[$table] = new Database($table);
             }
             return self::$instance[$table];
         }

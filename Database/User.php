@@ -1,6 +1,6 @@
 <?
 
-class UserDAO extends DAO {
+class User extends Database {
     public function __construct() {
         parent::getInstance('Users');
     }
