@@ -1,11 +1,11 @@
 <?php
-require CONTROLLER_PATH . "Auth/AuthController.php";
+require CONTROLLER_PATH . "Api/Auth/AuthController.php";
 
 /**
  * @throws Exception
  */
 
-function getControllerInstance($controller){
+function getApiControllerInstance($controller){
     try {
         switch($controller){
             case "Auth":

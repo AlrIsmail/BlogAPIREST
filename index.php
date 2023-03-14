@@ -1,44 +1,51 @@
 <?php
 // index.php mvc
 require_once "Config/Register.php";
-require(CONTROLLER_PATH . "index.php");
+require(CONTROLLER_PATH . "router.php");
 
 $type = null;
 $controller = null;
 $action = null;
 
 $uri_pattern = explode('/', ROUTE_PATTERN);
-
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $uri = explode('/', $uri);
-print_r($uri_pattern);
-print_r($uri);
 // pattern verification
-if (count($uri_pattern) > count($uri)) {
-    header("HTTP/1.1 404 Not Found");
+// if contains v1 in uri
+if (in_array('v1', $uri)) {
+    // remve anythig before v1
+    $uri = array_slice($uri, array_search('v1', $uri));
 }else{
-    for ($x = 0; $x < count($uri); $x++) {
-        if ($x < count($uri_pattern)) {
-            if($uri_pattern[$x] == "{type}"){
-                $type = $uri[$x];
-            }
-            else if ($uri_pattern[$x] == "{controller}") {
-                $controller = $uri[$x];
-            } else if ($uri_pattern[$x] == "{action}") {
-                $action = $uri[$x];
-            } else if ($uri_pattern[$x] != $uri[$x]) {
-                header("HTTP/1.1 404 Not Found");
-                exit();
-            }
+    // not found
+    header('HTTP/1.1 404 Not Found');
+    echo "The file you're looking for ~does not~ exist.";
+    exit;
+}
+if (count($uri_pattern) > count($uri)) {
+    header('HTTP/1.1 404 Not Found');
+    echo "The file you're looking for ~does not~ exist.";
+}else{
+    // check if pattern is correct
+    for ($i = 0; $i < count($uri_pattern); $i++) {
+        if ($uri_pattern[$i] == '{type}') {
+            $type = $uri[$i];
+        } elseif ($uri_pattern[$i] == '{controller}') {
+            $controller = $uri[$i];
+        } elseif ($uri_pattern[$i] == '{action}') {
+            $action = $uri[$i];
+        }else{
+           if ($uri_pattern[$i] != $uri[$i]) {
+               header('HTTP/1.1 404 Not Found');
+               echo "The file you're looking for ~does not~ exist.";
+               exit;
+           }
         }
     }
 }
-print_r($uri);
-print_r($type, $controller, $action);
 try {
     $controllerInstance = GetControllerInstance($type, $controller);
 } catch (Exception $e) {
-    header("HTTP/1.1 404 Not Found");
+    header('HTTP/1.1 404 Not Found');
     exit();
 }
 if ($controllerInstance == null) {
