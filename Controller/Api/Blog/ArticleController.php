@@ -10,21 +10,40 @@ class ArticleController
     public function getAction($data)
     {
         $article = new Article();
-        $article->selectAll();
+        try {
+            $article->selectAll();
+        } catch (Exception $e) {
+            echo $e->getMessage();
+        }
+        return $article;
     }
 
     // GET /article/{id} (get article by id)
     public function idGetAction($data)
     {
         $article = new Article();
-        $article->select($data['id']);
+        try {
+            $article->select($data['id']);
+        } catch (Exception $e) {
+        }
+        return $article;
     }
 
     // POST /article (create new article)
     public function postAction($data)
     {
         $article = new Article();
-        $article->insert($data);
+        $data = array(
+            "Title" => $data['Title'],
+            "Content" => $data['Content'],
+            "DateModif" => null,
+            "DatePub" => $data['DatePub'],
+            "IdUser" => $data['IdUser']
+        );
+        try {
+            $article->insert($data);
+        } catch (Exception $e) {
+        }
     }
 
     // PUT /article/{id} (update article by id)

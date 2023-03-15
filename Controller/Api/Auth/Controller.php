@@ -1,5 +1,5 @@
 <?php
-require CONTROLLER_PATH . "Api/Auth/AuthController.php";
+require CONTROLLER_PATH . "Api/Auth/Controller.php";
 
 /**
  * @throws Exception

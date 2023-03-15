@@ -6,13 +6,13 @@
 function deliver_response($status, $status_message, $data){
     /// gestion des exceptions
     if (!is_numeric($status)){
-        throw new \RuntimeException("status n'est pas un nombre");
+        throw new \RuntimeException("status must be a number");
     }
     if (!is_string($status_message)){
-        throw new \RuntimeException("status_message n'est pas un string");
+        throw new \RuntimeException("status_message must be a string");
     }
     if (!is_array($data) && !is_null($data)){
-        throw new \RuntimeException("data n'est pas un array");
+        throw new \RuntimeException("data must be an array or null");
     }
     /// Paramétrage de l'entête HTTP, suite
     header("HTTP/1.1 $status $status_message");
