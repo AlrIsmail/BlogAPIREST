@@ -2,7 +2,7 @@
 
 class Database {
     
-        private $db;
+        private PDO $db;
         private static array $instance = [];
         private $table;
         private function __construct($table) {
