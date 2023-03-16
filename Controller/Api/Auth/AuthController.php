@@ -36,7 +36,7 @@ class AuthController{
             $jwt_headers = array('alg' => 'HS256', 'typ' => 'JWT');
             $jwt_payload = array('username' => $username, 'exp' => time() + $jwt_duration);
             $jwt = generate_jwt($jwt_headers, $jwt_payload, $jwt_secret);
-            deliver_response(200, "Login successful", $jwt);
+            deliver_response(200, "Login successful", (array) $jwt);
         }
         else {
             deliver_response(401, "Login failed", NULL);
