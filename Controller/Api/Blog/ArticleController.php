@@ -1,112 +1,65 @@
 <?php
-#TODO : remake
-require DATABASE_PATH . "Publish.php";
-require DATABASE_PATH . "Article.php";
-require DATABASE_PATH . "User.php";
+require MODEL_PATH . "Articles.php";
 
 class ArticleController
 {
-    // GET /article (get all article)
-    public function getAction($data)
+    private $role = null;
+    private $idUser = null;
+    public function __construct()
     {
-        $article = new Article();
-        try {
-            $article->selectAll();
-        } catch (Exception $e) {
-            echo $e->getMessage();
+        $jwt = get_bearer_token();
+        /// verify the validity of the token
+        if(!is_jwt_valid($jwt)) {
+            #todo : verify if we need to send a response
+            //deliver_response(401, "Unauthorized", NULL);
+            $this->role = 'guest';
+        }else{
+            //deliver_response(200, "Authorized", NULL);
+            $this->role = get_jwt_payload($jwt)['role'];
+            $this->idUser = get_jwt_payload($jwt)['user'];
+        }   
+    }
+    public function GetAction()
+    {
+        # todo : make class Article
+        $articles = new Articles();
+        if(empty($id = $_GET['id'])){
+            $articleList = $articles->GetAll();
+        }else{
+            if(!is_numeric($id)){
+                deliver_response(400, "Bad request the id needs to be a number", NULL);
+            }
+            $articleList = $articles->GetById($id);
+            if(empty($articleList)){
+                deliver_response(404, "Not found", NULL);
+            }
         }
-        return $article;
-    }
-
-    // GET /article/{id} (get article by id)
-    public function idGetAction($data)
-    {
-        $article = new Article();
-        try {
-            $article->select($data['id']);
-        } catch (Exception $e) {
+        $data = array();
+        # todo : make a function to do this for each role
+        foreach($article as $articleList){
+            $articl = array(
+                "id" => $article->Id,
+                "title" => $article->Title,
+                "content" => $article->Content,
+                "author" => $article->IdUser,
+                "dateCreated" => $article->DateCreated,
+                "dateModified" => $article->DateModified,
+            );
+            if($this->role == 'admin' || $this->role == 'editor'){
+                $articl["nblikes"] = $article->Likes;
+                $articl["nbdislikes"] = $article->Dislikes;
+            }
+            if($this->role == 'admin'){
+                $articl["listlies"] = $article->ListLikes;
+                $articl["listdislikes"] = $article->ListDislikes;
+            }
+            // also the editor can see the list of likes and dislikes for his articles
+            if($this->role == 'editor' && $article->IdUser == get_jwt_payload($jwt)['username']){
+                $articl["listlies"] = $article->ListLikes;
+                $articl["listdislikes"] = $article->ListDislikes;
+            }
+            array_push($data, $articl);
         }
-        return $article;
+        deliver_response(200, "Article", $data);
     }
-
-    // POST /article (create new article)
-    public function postAction($data)
-    {
-        $article = new Article();
-        $data = array(
-            "Title" => $data['Title'],
-            "Content" => $data['Content'],
-            "DateModif" => null,
-            "DatePub" => $data['DatePub'],
-            "IdUser" => $data['IdUser']
-        );
-        try {
-            $article->insert($data);
-        } catch (Exception $e) {
-        }
-    }
-
-    // PUT /article/{id} (update article by id)
-    public function idPutAction($data)
-    {
-        $article = new Article();
-        $article->update($data['id'], $data);
-    }
-
-    // DELETE /article/{id} (delete article by id)
-    public function idDeleteAction($data)
-    {
-        $article = new Article();
-        $article->delete($data['id']);
-    }
-
-    // GET /article/publisher (get all publisher)
-    public function publisherGetAction($data)
-    {
-        $publish = new User();
-        $publish->selectAll("publisher");
-    }
-
-    // GET /article/publisher/{id} (get publisher by id)
-    public function publisherIdGetAction($data)
-    {
-        $publish = new User();
-        $publish->select($data['id'], "publisher");
-    }
-
-    // GET /article/author (get all author)
-    public function authorGetAction($data)
-    {
-        $author = new User();
-        $author->selectAll("author");
-    }
-
-    // GET /article/author/{id} (get author by id)
-    public function authorIdGetAction($data)
-    {
-        $author = new User();
-        $author->select($data['id'], "author");
-    }
-
-    // GET /article/publish (get all publish)
-    public function publishGetAction($data)
-    {
-        $publish = new Publish();
-        $publish->selectAll();
-    }
-
-    // GET /article/publish/{id} (get publish by id)
-    public function publishIdGetAction($data)
-    {
-        $publish = new Publish();
-        $publish->select($data['id']);
-    }
-
-    // POST /article/publish (create new publish)
-    public function publishPostAction($data)
-    {
-        $publish = new Publish();
-        $publish->insert($data);
-    }
-
 }
