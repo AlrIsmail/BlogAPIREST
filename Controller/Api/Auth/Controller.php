@@ -5,7 +5,7 @@ require CONTROLLER_PATH . "Api/Auth/Controller.php";
  * @throws Exception
  */
 
-function getApiControllerInstance($controller): AuthController
+function getApiControllerInstance($controller)
 {
     try {
         switch($controller){

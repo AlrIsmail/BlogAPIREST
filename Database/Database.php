@@ -4,22 +4,20 @@ class Database
 {
 
     private PDO $db;
-    private static array $instance = [];
-    private $table;
+    private static $instance = null;
 
-    private function __construct($table)
+    private function __construct()
     {
         $this->db = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=utf8', DB_USER, DB_PASS);
         $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $this->table = $table;
     }
 
-    public static function getInstance($table)
+    public static function getInstance()
     {
-        if (!isset(self::$instance[$table])) {
-            self::$instance[$table] = new Database($table);
+        if (empty(self::$instance)) {
+            self::$instance = new Database();
         }
-        return self::$instance[$table];
+        return self::$instance;
     }
 
     public function getPDO(): PDO
@@ -27,64 +25,32 @@ class Database
         return $this->db;
     }
 
-    /*// select
-    public function select($id)
+    public function  selectWhere($table, $data)
     {
-        $sql = "SELECT * FROM $this->table WHERE id = :id";
-        $stmt = $this->db->prepare($sql);
-        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-        $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
-    // selectAll
-    public function selectAll()
-    {
-        $sql = "SELECT * FROM $this->table";
-        return $this->db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    // insert
-    public function insert($data)
-    {
-        $columns = implode(', ', array_keys($data));
-        $values = ':' . implode(', :', array_keys($data));
-
-        $sql = "INSERT INTO {$this->table} ($columns) VALUES ($values)";
-
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute($data);
-
-        return $this->db->lastInsertId();
-    }
-
-
-    // update
-    public function update($id, $data)
-    {
-        $sql = "UPDATE $this->table SET ";
+        $sql = "SELECT * FROM $table WHERE ";
         foreach ($data as $key => $value) {
-            $sql .= $key . ' = :' . $key . ', ';
+            $sql .= $key . ' = :' . $key . ' AND ';
         }
-        $sql = substr($sql, 0, -2);
-        $sql .= " WHERE id = :id";
+        $sql = substr($sql, 0, -5);
         $stmt = $this->db->prepare($sql);
         foreach ($data as $key => $value) {
             $stmt->bindValue(':' . $key, $value);
         }
-        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
-        return $stmt->rowCount();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // delete
-    public function delete($id)
-    {
-        $sql = "DELETE FROM $this->table WHERE id = :id";
-        $stmt = $this->db->prepare($sql);
-        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-        $stmt->execute();
-        return $stmt->rowCount();
-    }*/
-
+     // insert
+     public function insert($table, $data)
+     {
+         $columns = implode(', ', array_keys($data));
+         $values = ':' . implode(', :', array_keys($data));
+ 
+         $sql = "INSERT INTO {$table} ($columns) VALUES ($values)";
+ 
+         $stmt = $this->db->prepare($sql);
+         $stmt->execute($data);
+ 
+         return $this->db->lastInsertId();
+     }
 }

@@ -1,30 +1,41 @@
 <?php
-
+/*
+include_once 'Database.php';
+include_once '../Config/Register.php';
+*/
 class User extends Database {
+    private $db = null;
+    private $table = 'Users';
     public function __construct() {
-        parent::getInstance('Users');
+        $this->db = parent::getInstance();
     }
 
-    public function select($id) {
-        return parent::select($id);
+    public function selectUser($id){
+        $data = array(
+            'IdUser' => $id
+        );
+        return $this->db->selectWhere($this->table, $data);
+    }
+    
+    public function selectUserPass($username, $password){
+        $data = array(
+            'UserName' => $username,
+            'Password' => $password
+        );
+        return $this->db->selectWhere($this->table, $data);
+
     }
 
-    public function selectAll() {
-        return parent::selectAll();
+    public function insertUser($username, $password, $role){
+        $data = array(
+            'UserName' => $username,
+            'Password' => $password,
+            'Role' => $role
+        );
+        return $this->db->insert($this->table, $data);
     }
 
-    public function insert($data) {
-        return parent::insert($data);
-    }
-
-    public function update($id, $data) {
-        return parent::update($id, $data);
-    }
-
-    public function delete($id) {
-        return parent::delete($id);
-    }
-
+    /*
     public function login($data)
     {
         $sql = "SELECT * FROM `Users` WHERE username = :username AND password = :password";
@@ -40,5 +51,5 @@ class User extends Database {
         } else {
             return false;
         }
-    }
+    }*/
 }
