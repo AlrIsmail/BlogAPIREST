@@ -94,6 +94,68 @@ class ArticleController
     }
 
     public function PutAction(){
-        
+        if($this->role !== 'publisher'){
+            deliver_response(401, "Unauthorized", NULL);
+        }
+        $data = json_decode(file_get_contents('php://input'), true);
+        if(empty($data['id']) || empty($data['title']) || empty($data['content'] ||
+         empty(['author'])) || empty($data['dateCreated'])){
+            $message = "Bad request";	
+            $message .= empty($data['id']) ? " id is missing" : "";
+            $message .= empty($data['title']) ? " title is missing" : "";
+            $message .= empty($data['content']) ? " content is missing" : "";
+            $message .= empty($data['author']) ? " author is missing" : "";
+            $message .= empty($data['dateCreated']) ? " dateCreated is missing" : "";
+            deliver_response(400, $message, NULL);
+        }
+        $articles = new Articles();
+        // TODO : check the validity of the information sent and sql insertion if something is wrong create() will return -1
+        $articles->IdUser = ($data['id'] == $this->idUser) ? $data['id'] : 0;
+        $articles->Title = $data['title'];
+        $articles->Content = $data['content'];
+        $articles->DateCreated = $data['DateCreated'];
+        $articles->DateModified = empty($data['DateModified']) ? date("Y-m-d H:i:s") : $data['DateModified'];
+        $articles->Likes = empty($data['Likes']) ? 0 : $data['Likes'];
+        $articles->Dislikes = empty($data['Dislikes']) ? 0 : $data['Dislikes'];
+        $articles->ListLikes = empty($data['ListLikes']) ? array() : $data['ListLikes'];
+        $articles->ListDislikes = empty($data['ListDislikes']) ? array() : $data['ListDislikes'];
+        switch ($articles->Update()){
+            case 1:
+                deliver_response(200, "Article updated", $articles->getPostedArticle());
+                break;
+            case -1:
+                deliver_response(400, $articles->getErrorMessage() , NULL);
+                break;
+            default:
+                deliver_response(500, "Internal server error", NULL);
+        }
+    }
+
+    public function DeleteAction(){
+        if($this->role !== 'publisher' && $this->role !== 'admin'){
+            deliver_response(401, "Unauthorized", NULL);
+        }
+        $data = json_decode(file_get_contents('php://input'), true);
+        if(empty($data['id'])){
+            $message = "Bad request";	
+            $message .= empty($data['id']) ? " id is missing" : "";
+            deliver_response(400, $message, NULL);
+        }
+        $articles = new Articles();
+        // TODO : check the validity of the information sent and sql insertion if something is wrong create() will return -1
+        if ($this->role == 'publisher')
+            $articles->IdUser = ($data['id'] == $this->idUser) ? $data['id'] : 0;
+        else
+            $articles->IdUser = $data['id'];
+        switch ($articles->Delete()){
+            case 1:
+                deliver_response(200, "Article deleted", $articles->getPostedArticle());
+                break;
+            case -1:
+                deliver_response(400, $articles->getErrorMessage() , NULL);
+                break;
+            default:
+                deliver_response(500, "Internal server error", NULL);
+        }
     }
 }
