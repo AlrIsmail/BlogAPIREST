@@ -53,13 +53,47 @@ class ArticleController
                 $articl["listlies"] = $article->ListLikes;
                 $articl["listdislikes"] = $article->ListDislikes;
             }
-            // also the editor can see the list of likes and dislikes for his articles
-            if($this->role == 'editor' && $article->IdUser == get_jwt_payload($jwt)['username']){
-                $articl["listlies"] = $article->ListLikes;
-                $articl["listdislikes"] = $article->ListDislikes;
-            }
             array_push($data, $articl);
         }
         deliver_response(200, "Article", $data);
+    }
+    public function PostAction()
+    {
+        if($this->role !== 'publisher'){
+            deliver_response(401, "Unauthorized", NULL);
+        }
+        $data = json_decode(file_get_contents('php://input'), true);
+        if(empty($data['title']) || empty($data['content'] || empty(['author']))){
+            $message = "Bad request";	
+            $message .= empty($data['title']) ? " title is missing" : "";
+            $message .= empty($data['content']) ? " content is missing" : "";
+            $message .= empty($data['author']) ? " author is missing" : "";
+            deliver_response(400, $message, NULL);
+        }
+        $articles = new Articles();
+        // TODO : check the validity of the information sent and sql insertion if something is wrong create() will return -1
+        $articles->IdUser = ($data['id'] == $this->idUser) ? $data['id'] : 0;
+        $articles->Title = $data['title'];
+        $articles->Content = $data['content'];
+        $articles->DateCreated = empty($data['DateCreated']) ? date("Y-m-d H:i:s") : $data['DateCreated'];
+        $articles->DateModified = empty($data['DateModified']) ? date("Y-m-d H:i:s") : $data['DateModified'];
+        $articles->Likes = empty($data['Likes']) ? 0 : $data['Likes'];
+        $articles->Dislikes = empty($data['Dislikes']) ? 0 : $data['Dislikes'];
+        $articles->ListLikes = empty($data['ListLikes']) ? array() : $data['ListLikes'];
+        $articles->ListDislikes = empty($data['ListDislikes']) ? array() : $data['ListDislikes'];
+        switch ($articles->Create()){
+            case 1:
+                deliver_response(200, "Article created", $articles->getPostedArticle());
+                break;
+            case -1:
+                deliver_response(400, $articles->getErrorMessage() , NULL);
+                break;
+            default:
+                deliver_response(500, "Internal server error", NULL);
+        }
+    }
+
+    public function PutAction(){
+        
     }
 }
