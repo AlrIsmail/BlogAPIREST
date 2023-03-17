@@ -12,6 +12,9 @@ class AuthController{
         echo "test";
     }
 
+    /**
+     * @throws JsonException
+     */
     public function PostAction($data){
         // définir the secret key pour la génération des jetons JWT
         $jwt_secret = 'secret';
@@ -19,7 +22,7 @@ class AuthController{
         // define the period of validity of the token
         $jwt_duration = 3600; // 1 heure
 
-        $data = (array) json_decode(file_get_contents("php://input"), TRUE);
+        $data = (array)json_decode(file_get_contents("php://input"), TRUE, 512, JSON_THROW_ON_ERROR);
 
         // username and password given by the user
         $username = $data['username'];

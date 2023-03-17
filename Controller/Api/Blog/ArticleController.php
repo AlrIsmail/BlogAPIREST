@@ -19,9 +19,12 @@ class ArticleController
             $this->idUser = get_jwt_payload($jwt)['user'];
         }   
     }
+
+    /**
+     * @throws Exception
+     */
     public function GetAction()
     {
-        # todo : make class Article
         $articles = new Articles();
         if(empty($id = $_GET['id'])){
             $articleList = $articles->GetAll();
@@ -36,8 +39,9 @@ class ArticleController
         }
         $data = array();
         # todo : make a function to do this for each role
+        # todo: fix this variable (not found)
         foreach($article as $articleList){
-            $articl = array(
+            $article = array(
                 "id" => $article->Id,
                 "title" => $article->Title,
                 "content" => $article->Content,
@@ -46,23 +50,28 @@ class ArticleController
                 "dateModified" => $article->DateModified,
             );
             if($this->role == 'admin' || $this->role == 'editor'){
-                $articl["nblikes"] = $article->Likes;
-                $articl["nbdislikes"] = $article->Dislikes;
+                $article["nblikes"] = $article->Likes;
+                $article["nbdislikes"] = $article->Dislikes;
             }
             if($this->role == 'admin'){
-                $articl["listlies"] = $article->ListLikes;
-                $articl["listdislikes"] = $article->ListDislikes;
+                $article["listlies"] = $article->ListLikes;
+                $article["listdislikes"] = $article->ListDislikes;
             }
-            array_push($data, $articl);
+            $data[] = $article;
         }
         deliver_response(200, "Article", $data);
     }
+
+    /**
+     * @throws JsonException
+     * @throws Exception
+     */
     public function PostAction()
     {
         if($this->role !== 'publisher'){
             deliver_response(401, "Unauthorized", NULL);
         }
-        $data = json_decode(file_get_contents('php://input'), true);
+        $data = json_decode(file_get_contents('php://input'), true, 512, JSON_THROW_ON_ERROR);
         if(empty($data['title']) || empty($data['content'] || empty(['author']))){
             $message = "Bad request";	
             $message .= empty($data['title']) ? " title is missing" : "";
@@ -72,7 +81,7 @@ class ArticleController
         }
         $articles = new Articles();
         // TODO : check the validity of the information sent and sql insertion if something is wrong create() will return -1
-        $articles->IdUser = ($data['id'] == $this->idUser) ? $data['id'] : 0;
+        $articles->IdUser = ($data['id'] === $this->idUser) ? $data['id'] : 0;
         $articles->Title = $data['title'];
         $articles->Content = $data['content'];
         $articles->DateCreated = empty($data['DateCreated']) ? date("Y-m-d H:i:s") : $data['DateCreated'];
