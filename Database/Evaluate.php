@@ -1,27 +1,46 @@
 <?php 
 
 class Evaluate extends Database{
+
+    private $db = null;
+    private $table = 'Evaluate';
     public function __construct(){
-        parent::getInstance('Evaluate');
+        $this->db= parent::getInstance();
     }
 
-    public function select($id){
-        return parent::select($id);
+    public function like($idArticle, $idUser){
+        $data = array(
+            'IdArticle' => $idArticle,
+            'IdUser' => $idUser,
+            'Like' => 1,
+            'Dislike' => 0
+        );
+        return $this->db->insert($this->table, $data);
     }
 
-    public function selectAll(){
-        return parent::selectAll();
+    public function dislike($idArticle, $idUser){
+        $data = array(
+            'IdArticle' => $idArticle,
+            'IdUser' => $idUser,
+            'Liked' => 0,
+            'Disliked' => 1
+        );
+        return $this->db->insert($this->table, $data);
     }
 
-    public function insert($data){
-        return parent::insert($data);
+    public function getUsersLike($idArticle){
+        $data = array(
+            'IdArticle' => $idArticle,
+            'Liked' => 1
+        );
+        return $this->db->selectWhere($this->table, $data);
     }
 
-    public function update($id, $data){
-        return parent::update($id, $data);
-    }
-
-    public function delete($id){
-        return parent::delete($id);
+    public function getUsersDislike($idArticle){
+        $data = array(
+            'IdArticle' => $idArticle,
+            'Disliked' => 1
+        );
+        return $this->db->selectWhere($this->table, $data);
     }
 }

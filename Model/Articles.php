@@ -1,5 +1,7 @@
 <?php
 
+include_once DATABASE_PATH . "Article.php";
+include_once DATABASE_PATH . "Evaluate.php";
 
 
 class Articles{
@@ -60,19 +62,53 @@ class Articles{
         $liste = $this->dao->selectAll();
         foreach($liste as $article){
             $temp = new Articles();
+            $temp->IdArticle = $article['IdArticle'];
             $temp->IdUser = $article['IdUser'];
             $temp->Title = $article['Title'];
             $temp->Content = $article['Content'];
-            $temp->DateCreated = $article['DateCreated'];
-            $temp->DateModified = $article['DateModified'];
+            $temp->DateCreated = $article['DatePub'];
+            $temp->DateModified = $article['DateModif'];
+            $result = $this->getUsersLiked($temp->IdArticle);
+            $temp->Likes = count($result);
+            $temp->ListLikes = $result;
+            $result = $this->getUsersDisliked($temp->IdArticle);
+            $temp->Dislikes = count($result);
+            $temp->ListDislikes = $result;
             $this->listArticles[] = $temp;
         }
         return $this->listArticles;
     }
+    public function getUsersLiked($id)
+    {
+        $daoEvaluate = new Evaluate();
+        $list = $daoEvaluate->getUsersLike($id);
+        return $list;
+    }
+    public function getUsersDisliked($id)
+    {
+        $daoEvaluate = new Evaluate();
+        $list = $daoEvaluate->getUsersDislike($id);
+        return $list;
+    }
 
     public function getById($id)
     {
-        return $this->dao->select($id);
+        $liste = $this->dao->select($id);
+        $temp = new Articles();
+        $temp->IdArticle = $liste['IdArticle'];
+        $temp->IdUser = $liste['IdUser'];
+        $temp->Title = $liste['Title'];
+        $temp->Content = $liste['Content'];
+        $temp->DateCreated = $liste['DatePub'];
+        $temp->DateModified = $liste['DateModif'];
+        $result = $this->getUsersLiked($temp->IdArticle);
+        $temp->Likes = count($result);
+        $temp->ListLikes = $result;
+        $result = $this->getUsersDisliked($temp->IdArticle);
+        $temp->Dislikes = count($result);
+        $temp->ListDislikes = $result;
+        return $temp;
+
     }
 
     public function create()

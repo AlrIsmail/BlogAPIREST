@@ -66,6 +66,10 @@ switch ($method) {
         parse_str(file_get_contents("php://input"), $post_vars);
         $controllerInstance->{$action . 'DeleteAction'}($post_vars);
         break;
+    case "GET":
+        parse_str(file_get_contents("php://input"), $post_vars);
+        $controllerInstance->{$action . 'GetAction'}($post_vars);
+        break;
     default:
         $controllerInstance->{$action . 'Action'}($_GET);
         break;

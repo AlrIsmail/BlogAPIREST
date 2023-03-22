@@ -16,14 +16,9 @@ class ArticleController
             $this->role = 'guest';
         } else {
             //deliver_response(200, "Authorized", NULL);
-            $this->role = get_jwt_payload($jwt)['role'];
-            $this->idUser = get_jwt_payload($jwt)['user'];
+            $this->role = strtolower(get_role($jwt));
+            $this->idUser = get_user($jwt);
         }
-    }
-
-    public function testAction()
-    {
-        echo "test";
     }
 
     /**
@@ -32,40 +27,40 @@ class ArticleController
     public function GetAction()
     {
         $articles = new Articles();
-        if (empty($id = $_GET['id'])) {
+        if (empty($_GET['id'])) {
             $articleList = $articles->getAll();
         } else {
-            if (!is_numeric($id)) {
+            if (!is_numeric($_GET['id'])) {
                 deliver_response(400, "Bad request the id needs to be a number", NULL);
             }
-            $articleList = $articles->getById($id);
+            # todo : fix get by id since it doesn't work
+            $articleList = array($articles->getById($_GET['id']));
             if (empty($articleList)) {
                 deliver_response(404, "Not found", NULL);
             }
         }
         $data = array();
         # todo : make a function to do this for each role
-        # todo: fix this variable (not found)
         foreach ($articleList as $art) {
             $article = array(
-                "id" => $art->Id,
+                "id" => $art->IdArticle,
                 "title" => $art->Title,
                 "content" => $art->Content,
                 "author" => $art->IdUser,
                 "dateCreated" => $art->DateCreated,
                 "dateModified" => $art->DateModified,
             );
-            if ($this->role == 'mederator' || $this->role == 'publisher') {
+            if ($this->role == 'moderator' || $this->role == 'publisher') {
                 $article["nblikes"] = $art->Likes;
                 $article["nbdislikes"] = $art->Dislikes;
             }
-            if ($this->role == 'mederator') {
+            if ($this->role == 'moderator') {
                 $article["listlies"] = $art->ListLikes;
                 $article["listdislikes"] = $art->ListDislikes;
             }
             $data[] = $article;
         }
-        deliver_response(200, "Article", $data);
+        deliver_response(200, "Article(s)", $data);
     }
 
     /**
@@ -75,36 +70,61 @@ class ArticleController
     public function PostAction()
     {
         if ($this->role !== 'publisher') {
-            deliver_response(401, "Unauthorized", NULL);
+            deliver_response(401, "Unauthorized only publishers can publish or vote", NULL);
         }
+        // if it's a publish request do this if then check if it a vote request
         $data = json_decode(file_get_contents('php://input'), true, 512, JSON_THROW_ON_ERROR);
-        if (empty($data['title']) || empty($data['content'] || empty(['author']))) {
-            $message = "Bad request";
-            $message .= empty($data['title']) ? " title is missing" : "";
-            $message .= empty($data['content']) ? " content is missing" : "";
-            $message .= empty($data['author']) ? " author is missing" : "";
-            deliver_response(400, $message, NULL);
-        }
-        $articles = new Articles();
-        // TODO : check the validity of the information sent and sql insertion if something is wrong create() will return -1
-        $articles->IdUser = ($data['id'] === $this->idUser) ? $data['id'] : 0;
-        $articles->Title = $data['title'];
-        $articles->Content = $data['content'];
-        $articles->DateCreated = empty($data['DateCreated']) ? date("Y-m-d H:i:s") : $data['DateCreated'];
-        $articles->DateModified = empty($data['DateModified']) ? date("Y-m-d H:i:s") : $data['DateModified'];
-        $articles->Likes = empty($data['Likes']) ? 0 : $data['Likes'];
-        $articles->Dislikes = empty($data['Dislikes']) ? 0 : $data['Dislikes'];
-        // $articles->ListLikes = empty($data['ListLikes']) ? array() : $data['ListLikes'];
-        // $articles->ListDislikes = empty($data['ListDislikes']) ? array() : $data['ListDislikes'];
-        switch ($articles->create()) {
-            case 1:
-                deliver_response(200, "Article created", $articles->getPostedArticle());
-                break;
-            case -1:
-                deliver_response(400, $articles->getErrorMessage(), NULL);
-                break;
-            default:
-                deliver_response(500, "Internal server error", NULL);
+        // if like or dislike is set then it's a vote request
+        if (isset($data['like']) || isset($data['dislike'])) {
+            if (empty($_GET['id'])) {
+                deliver_response(400, "Bad request messing the id of the article", NULL);
+            }
+            $articles = new Articles();
+            $articles->IdArticle = $_GET['id'];
+            $articles->IdUser = $this->idUser;
+            $articles->Likes = isset($data['like']) ? $data['like'] : 0;
+            $articles->Dislikes = isset($data['dislike']) ? $data['dislike'] : 0;
+            if ($articles->Likes == 1 && $articles->Dislikes == 1) {
+                deliver_response(400, "Bad request can't like and dislike an article", NULL);
+            }
+
+            // TODO : add the method vote
+            switch ($articles->vote()) {
+                case 1:
+                    deliver_response(200, "Vote added", $articles->getPostedArticle());
+                    break;
+                case -1:
+                    deliver_response(400, $articles->getErrorMessage(), NULL);
+                    break;
+                case -2:
+                    deliver_response(404, "Vote can't be added Internal Server Error", NULL);
+                    break;
+            }
+        }else{
+            if (empty($data['title']) || empty($data['content'] || empty(['author']))) {
+                $message = "Bad request";
+                $message .= empty($data['title']) ? " title is missing" : "";
+                $message .= empty($data['content']) ? " content is missing" : "";
+                $message .= empty($data['author']) ? " author is missing" : "";
+                deliver_response(400, $message, NULL);
+            }
+            $articles = new Articles();
+            // TODO : check the validity of the information sent and sql insertion if something is wrong create() will return -1
+            $articles->IdUser = ($data['id'] === $this->idUser) ? $data['id'] : 0;
+            $articles->Title = $data['title'];
+            $articles->Content = $data['content'];
+            $articles->DateCreated = empty($data['DateCreated']) ? date("Y-m-d H:i:s") : $data['DateCreated'];
+            $articles->DateModified = empty($data['DateModified']) ? date("Y-m-d H:i:s") : $data['DateModified'];
+            switch ($articles->create()) {
+                case 1:
+                    deliver_response(200, "Article created", $articles->getPostedArticle());
+                    break;
+                case -1:
+                    deliver_response(400, $articles->getErrorMessage(), NULL);
+                    break;
+                default:
+                    deliver_response(500, "Can't post article Internal server error", NULL);
+            }
         }
     }
 

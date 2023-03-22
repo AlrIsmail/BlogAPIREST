@@ -1,5 +1,7 @@
 <?php
 
+include_once DATABASE_PATH . "Database.php";
+
 class Article extends Database{
     private $db = null;
     public function __construct(){
@@ -8,11 +10,11 @@ class Article extends Database{
 
     public function select($id){
         $pdo = $this->db->getPDO();
-        $sql = "SELECT * FROM Articles WHERE Id = :Id";
+        $sql = "SELECT * FROM Articles WHERE IdArticle = :Id";
         $stmt = $pdo->prepare($sql);
         $stmt->bindValue(':Id', $id, PDO::PARAM_INT);
         $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function selectAll(){
@@ -61,6 +63,4 @@ class Article extends Database{
         $stmt->bindValue(':IdUser', $data['IdUser'], PDO::PARAM_INT);
         return $stmt;
     }
-
-    
 }
