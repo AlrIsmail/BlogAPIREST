@@ -1,12 +1,12 @@
 <?php
 #TODO : remake
-require CONTROLLER_PATH . "Blog/UserController.php";
-require CONTROLLER_PATH . "Blog/ArticleController.php";
+require CONTROLLER_PATH . "Api/Blog/UserController.php";
+require CONTROLLER_PATH . "Api/Blog/ArticleController.php";
 
 /**
  * @throws Exception
  */
-function getControllerInstance($controller)
+function getApiControllerInstance($controller)
 {
     try {
         switch($controller){

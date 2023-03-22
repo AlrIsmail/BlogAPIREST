@@ -28,16 +28,16 @@ class Article extends Database{
         $stmt->execute();
     }
 
-    public function update($id, $data): void
+    public function updateArticle($id, $data): void
     {
         $pdo = $this->db->getPDO();
-        $sql = "UPDATE Articles SET Title = :Title, Content = :Content, DateModif = :DateModif, DatePub = :DatePub, IdUser = :IdUser WHERE IdUser = :Id";
+        $sql = "UPDATE Articles SET Title = :Title, Content = :Content, DateModif = :DateModif, DatePub = :DatePub, IdUser = :IdUser WHERE IdArticle = :Id";
         $stmt = $this->bindParams($pdo, $sql, $data);
         $stmt->bindValue(':Id', $id, PDO::PARAM_INT);
         $stmt->execute();
     }
 
-    public function delete($id){
+    public function deleteArticle($id){
         $pdo = $this->db->getPDO();
         $sql = "DELETE FROM Articles WHERE IdUser = :Id";
         $stmt = $pdo->prepare($sql);
@@ -61,4 +61,6 @@ class Article extends Database{
         $stmt->bindValue(':IdUser', $data['IdUser'], PDO::PARAM_INT);
         return $stmt;
     }
+
+    
 }

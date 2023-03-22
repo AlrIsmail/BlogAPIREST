@@ -13,7 +13,7 @@ $uri = explode('/', $uri);
 // pattern verification
 // if contains v1 in uri
 if (in_array('v1', $uri)) {
-    // remve anythig before v1
+    // remove anything before v1
     $uri = array_slice($uri, array_search('v1', $uri));
 }else{
     // not found
