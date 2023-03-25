@@ -231,20 +231,52 @@ class Articles{
         }
     }
 
-
-
     public function getPostedArticle()
     {
         $idArticle = $this->dao->getPDO()->lastInsertId();
-        return $this->dao->select($idArticle);
+        return array($this->dao->select($idArticle));
     }
 
     public function getModifiedArticle(){
-        return $this->dao->select($this->IdArticle);
+        return array($this->dao->select($this->IdArticle));
     }
 
     public function getErrorMessage(){
         // Retrieve the catched error from the create() function
         return $this->errorMessage;
+    }
+
+    public function getAllData($role){
+        $articleList = $this->getAll();
+        return $this->verifyPermissions($role, $articleList);
+    }
+
+    public function getOneData($role, $id){
+        $articleList = array($this->getById($id));
+        return $this->verifyPermissions($role, $articleList);
+    }
+
+    private function verifyPermissions($role, $articleList){
+        $data = array();
+        foreach ($articleList as $art) {
+            $article = array(
+                "id" => $art->IdArticle,
+                "title" => $art->Title,
+                "content" => $art->Content,
+                "author" => $art->IdUser,
+                "dateCreated" => $art->DateCreated,
+                "dateModified" => $art->DateModified,
+            );
+            if ($role == 'moderator' || $role == 'publisher') {
+                $article["nblikes"] = $art->Likes;
+                $article["nbdislikes"] = $art->Dislikes;
+            }
+            if ($role == 'moderator') {
+                $article["listlies"] = $art->ListLikes;
+                $article["listdislikes"] = $art->ListDislikes;
+            }
+            $data[] = $article;
+        }
+        return $data;
     }
 }

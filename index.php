@@ -33,8 +33,10 @@ if (count($uri_pattern) > count($uri)) {
             $controller = $uri[$i];
         } elseif ($uri_pattern[$i] == '{action}') {
             $action = $uri[$i];
+        }elseif ($uri_pattern[$i] == '{id}') {
+            $_GET['id'] = intval($uri[$i]);
         }else{
-           if ($uri_pattern[$i] != $uri[$i]) {
+           if ($uri_pattern[$i] != $uri[$i] && $uri_pattern[$i] != '{action}' && $uri_pattern[$i] != '{id}') {
                header('HTTP/1.1 404 Not Found');
                echo "The file you're looking for ~does not~ exist.";
                exit;
@@ -52,7 +54,7 @@ if ($controllerInstance == null) {
     header("HTTP/1.1 404 Not Found");
     exit();
 }
-
+$action = isset($action) ? $action : "";
 $method = $_SERVER["REQUEST_METHOD"];
 try{
     switch ($method) {
