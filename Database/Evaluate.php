@@ -8,7 +8,7 @@ class Evaluate extends Database{
         $this->db= parent::getInstance();
     }
 
-    public function like($idArticle, $idUser){
+    public function createLike($idArticle, $idUser){
         $data = array(
             'IdArticle' => $idArticle,
             'IdUser' => $idUser,
@@ -18,7 +18,7 @@ class Evaluate extends Database{
         return $this->db->insert($this->table, $data);
     }
 
-    public function dislike($idArticle, $idUser){
+    public function createDislike($idArticle, $idUser){
         $data = array(
             'IdArticle' => $idArticle,
             'IdUser' => $idUser,
@@ -26,6 +26,39 @@ class Evaluate extends Database{
             'Disliked' => 1
         );
         return $this->db->insert($this->table, $data);
+    }
+
+    public function updateLike($idArticle, $idUser){
+       $data = array(
+            'Liked' => 1,
+            'Disliked' => 0
+        );
+        $where = "IdArticle = $idArticle AND IdUser = $idUser";
+        return $this->db->update($this->table, $data, $where);
+    }
+
+    public function updateDislike($idArticle, $idUser){
+        $data = array(
+            'Liked' => 0,
+            'Disliked' => 1
+        );
+        $where = "IdArticle = $idArticle AND IdUser = $idUser";
+        return $this->db->update($this->table, $data, $where);
+    }
+
+    public function deleteVote($idArticle, $idUser){
+        $data = array(
+            'IdArticle' => $idArticle,
+            'IdUser' => $idUser
+        );
+        return $this->db->delete($this->table, $data);
+    }
+
+    public function deleteAllVotes($idArticle){
+        $data = array(
+            'IdArticle' => $idArticle
+        );
+        return $this->db->delete($this->table, $data);
     }
 
     public function getUsersLike($idArticle){

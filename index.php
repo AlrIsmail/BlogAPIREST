@@ -54,23 +54,28 @@ if ($controllerInstance == null) {
 }
 
 $method = $_SERVER["REQUEST_METHOD"];
-switch ($method) {
-    case "POST":
-        $controllerInstance->{$action . 'PostAction'}($_POST);
-        break;
-    case "PUT":
-        parse_str(file_get_contents("php://input"), $post_vars);
-        $controllerInstance->{$action . 'PutAction'}($post_vars);
-        break;
-    case "DELETE":
-        parse_str(file_get_contents("php://input"), $post_vars);
-        $controllerInstance->{$action . 'DeleteAction'}($post_vars);
-        break;
-    case "GET":
-        parse_str(file_get_contents("php://input"), $post_vars);
-        $controllerInstance->{$action . 'GetAction'}($post_vars);
-        break;
-    default:
-        $controllerInstance->{$action . 'Action'}($_GET);
-        break;
+try{
+    switch ($method) {
+        case "POST":
+            $controllerInstance->{$action . 'PostAction'}($_POST);
+            break;
+        case "PUT":
+            parse_str(file_get_contents("php://input"), $post_vars);
+            $controllerInstance->{$action . 'PutAction'}($post_vars);
+            break;
+        case "DELETE":
+            parse_str(file_get_contents("php://input"), $post_vars);
+            $controllerInstance->{$action . 'DeleteAction'}($post_vars);
+            break;
+        case "GET":
+            parse_str(file_get_contents("php://input"), $post_vars);
+            $controllerInstance->{$action . 'GetAction'}($post_vars);
+            break;
+        default:
+            $controllerInstance->{$action . 'Action'}($_GET);
+            break;
+    }
+}catch(Exception $e){
+    header('HTTP/1.1 404 Action Not Found');
+    exit();
 }

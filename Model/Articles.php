@@ -179,6 +179,8 @@ class Articles{
 
     public function delete(){
         try {
+            $daoEvaluate = new Evaluate();
+            $daoEvaluate->deleteAllVotes($this->IdArticle);
             $this->dao->deleteArticle($this->IdArticle);
             return 1;
         } catch (Exception $e) {
@@ -186,6 +188,50 @@ class Articles{
             return -1;
         }
     }
+
+    public function createVote(){
+        $daoEvaluate = new Evaluate();
+        try{
+            if ($this->Likes == 1){
+                $result = $daoEvaluate->createLike($this->IdArticle,$this->IdUser);
+            } else {
+                $result = $daoEvaluate->createDislike($this->IdArticle,$this->IdUser);
+            }
+            return $result;
+        } catch (Exception $e) {
+            $this->errorMessage = $e->getMessage();
+            return -1;
+        }
+        
+    }
+
+    public function updateVote(){
+        $daoEvaluate = new Evaluate();
+        try{
+            if ($this->Likes == 1){
+                $result = $daoEvaluate->updateLike($this->IdArticle,$this->IdUser);
+            } else {
+                $result = $daoEvaluate->updateDislike($this->IdArticle,$this->IdUser);
+            }
+            return $result;
+        } catch (Exception $e) {
+            $this->errorMessage = $e->getMessage();
+            return -1;
+        }
+    }
+
+    public function deleteVote(){
+        $daoEvaluate = new Evaluate();
+        try{
+            $result = $daoEvaluate->delete($this->IdArticle,$this->IdUser);
+            return $result;
+        } catch (Exception $e) {
+            $this->errorMessage = $e->getMessage();
+            return -1;
+        }
+    }
+
+
 
     public function getPostedArticle()
     {

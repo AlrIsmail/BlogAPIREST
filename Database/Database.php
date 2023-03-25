@@ -25,7 +25,7 @@ class Database
         return $this->db;
     }
 
-    public function  selectWhere($table, $data)
+    public function selectWhere($table, $data)
     {
         $sql = "SELECT * FROM $table WHERE ";
         foreach ($data as $key => $value) {
@@ -53,4 +53,37 @@ class Database
  
          return $this->db->lastInsertId();
      }
+
+    // update
+    public function update($table, $data, $where)
+    {
+        $sql = "UPDATE {$table} SET ";
+        foreach ($data as $key => $value) {
+            $sql .= $key . ' = :' . $key . ', ';
+        }
+        $sql = substr($sql, 0, -2);
+        $sql .= ' WHERE ' . $where;
+        $stmt = $this->db->prepare($sql);
+        foreach ($data as $key => $value) {
+            $stmt->bindValue(':' . $key, $value);
+        }
+        $stmt->execute();
+        return $stmt->rowCount();
+    }
+
+    // delete
+    public function delete($table, $data)
+    {
+        $sql = "DELETE FROM {$table} WHERE ";
+        foreach ($data as $key => $value) {
+            $sql .= $key . ' = :' . $key . ' AND ';
+        }
+        $sql = substr($sql, 0, -5);
+        $stmt = $this->db->prepare($sql);
+        foreach ($data as $key => $value) {
+            $stmt->bindValue(':' . $key, $value);
+        }
+        $stmt->execute();
+        return $stmt->rowCount();
+    }
 }

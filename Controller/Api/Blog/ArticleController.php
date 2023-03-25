@@ -85,16 +85,34 @@ class ArticleController
             $articles->Likes = isset($data['like']) ? $data['like'] : 0;
             $articles->Dislikes = isset($data['dislike']) ? $data['dislike'] : 0;
             if ($articles->Likes == 1 && $articles->Dislikes == 1) {
-                deliver_response(400, "Bad request can't like and dislike an article", NULL);
+                deliver_response(400, "Bad request can't like and dislike an article at the same time", NULL);
+            }
+            $article = $articles->getById($_GET['id']);
+            if (empty($article)) {
+                deliver_response(404, "Not found : the article you would like to evaluate dosen't exist", NULL);
+            }
+
+            // check if the author is the same as the user
+            if ($article->IdUser !== $this->idUser) {
+                deliver_response(401, "Unauthorized a publisher can't like or dislike his article", NULL);
+            }
+
+            // TODO : check if the user has already voted .. works?
+            if ($article->ListLikes != null && $article->ListDislikes != null) {
+                $listLikes = explode(",", $article->ListLikes);
+                $listDislikes = explode(",", $article->ListDislikes);
+                if (!in_array($this->idUser, $listLikes) && !in_array($this->idUser, $listDislikes)) {
+                    deliver_response(400, "Bad request : you have not voted yet use POST to vote", NULL);
+                }
             }
 
             // TODO : add the method vote
-            switch ($articles->vote()) {
+            switch ($article->createVote()) {
                 case 1:
-                    deliver_response(200, "Vote added", $articles->getPostedArticle());
+                    deliver_response(200, "Vote added", $article->getPostedArticle());
                     break;
                 case -1:
-                    deliver_response(400, $articles->getErrorMessage(), NULL);
+                    deliver_response(400, $article->getErrorMessage(), NULL);
                     break;
                 case -2:
                     deliver_response(404, "Vote can't be added Internal Server Error", NULL);
@@ -134,37 +152,77 @@ class ArticleController
             deliver_response(401, "Unauthorized", NULL);
         }
         $data = json_decode(file_get_contents('php://input'), true);
-        if (empty($_GET['IdArticle']) || empty($data['title']) || empty($data['content'] ||
-            empty(['author'])) || empty($data['dateCreated'])) {
-            $message = "Bad request";
-            $message .= empty($_GET['IdArticle']) ? " IdArticle is missing" : "";
-            $message .= empty($data['title']) ? " title is missing" : "";
-            $message .= empty($data['content']) ? " content is missing" : "";
-            $message .= empty($data['author']) ? " author is missing" : "";
-            $message .= empty($data['dateCreated']) ? " dateCreated is missing" : "";
-            deliver_response(400, $message, NULL);
-        }
-        $articles = new Articles();
-        // TODO : check the validity of the information sent and sql insertion if something is wrong create() will return -1
-        $articles->IdUser = ($data['author'] == $this->idUser) ? $data['author'] : 0;
-        $articles->IdArticle = $_GET['IdArticle'];
-        $articles->Title = $data['title'];
-        $articles->Content = $data['content'];
-        $articles->DateCreated = $data['DateCreated'];
-        $articles->DateModified = empty($data['DateModified']) ? date("Y-m-d H:i:s") : $data['DateModified'];
-        // $articles->Likes = empty($data['Likes']) ? 0 : $data['Likes'];
-        // $articles->Dislikes = empty($data['Dislikes']) ? 0 : $data['Dislikes'];
-        // $articles->ListLikes = empty($data['ListLikes']) ? array() : $data['ListLikes'];
-        // $articles->ListDislikes = empty($data['ListDislikes']) ? array() : $data['ListDislikes'];
-        switch ($articles->update()) {
-            case 1:
-                deliver_response(200, "Article updated", $articles->getModifiedArticle());
-                break;
-            case -1:
-                deliver_response(400, $articles->getErrorMessage(), NULL);
-                break;
-            default:
-                deliver_response(500, "Internal server error", NULL);
+        if (isset($data['like']) || isset($data['dislike'])) {
+            if (empty($_GET['id'])) {
+                deliver_response(400, "Bad request messing the id of the article", NULL);
+            }
+            $articles = new Articles();
+            $articles->IdArticle = $_GET['id'];
+            $articles->IdUser = $this->idUser;
+            $articles->Likes = isset($data['like']) ? $data['like'] : 0;
+            $articles->Dislikes = isset($data['dislike']) ? $data['dislike'] : 0;
+            if ($articles->Likes == 1 && $articles->Dislikes == 1) {
+                deliver_response(400, "Bad request can't like and dislike an article at the same time", NULL);
+            }
+            $article = $articles->getById($_GET['id']);
+            // check if the author is the same as the user
+            if ($article->IdUser !== $this->idUser) {
+                deliver_response(401, "Unauthorized a publisher can't like or dislike his article", NULL);
+            }
+            // TODO : check if the user has already voted .. works?
+            if ($article->ListLikes != null && $article->ListDislikes != null) {
+                $listLikes = explode(",", $article->ListLikes);
+                $listDislikes = explode(",", $article->ListDislikes);
+                if (in_array($this->idUser, $listLikes) || in_array($this->idUser, $listDislikes)) {
+                    deliver_response(400, "Bad request : you already voted on this article use PUT instead", NULL);
+                }
+            }
+
+            // TODO : add the method vote
+            switch ($articles->updateVote()) {
+                case 1:
+                    deliver_response(200, "Vote added", $articles->getPostedArticle());
+                    break;
+                case -1:
+                    deliver_response(400, $articles->getErrorMessage(), NULL);
+                    break;
+                case -2:
+                    deliver_response(404, "Vote can't be added Internal Server Error", NULL);
+                    break;
+            }
+        }else{
+            if (empty($_GET['IdArticle']) || empty($data['title']) || empty($data['content'] ||
+                empty(['author'])) || empty($data['dateCreated'])) {
+                $message = "Bad request";
+                $message .= empty($_GET['IdArticle']) ? " IdArticle is missing" : "";
+                $message .= empty($data['title']) ? " title is missing" : "";
+                $message .= empty($data['content']) ? " content is missing" : "";
+                $message .= empty($data['author']) ? " author is missing" : "";
+                $message .= empty($data['dateCreated']) ? " dateCreated is missing" : "";
+                deliver_response(400, $message, NULL);
+            }
+            $articles = new Articles();
+            // TODO : check the validity of the information sent and sql insertion if something is wrong create() will return -1
+            $articles->IdUser = ($data['author'] == $this->idUser) ? $data['author'] : 0;
+            $articles->IdArticle = $_GET['IdArticle'];
+            $articles->Title = $data['title'];
+            $articles->Content = $data['content'];
+            $articles->DateCreated = $data['DateCreated'];
+            $articles->DateModified = empty($data['DateModified']) ? date("Y-m-d H:i:s") : $data['DateModified'];
+            // $articles->Likes = empty($data['Likes']) ? 0 : $data['Likes'];
+            // $articles->Dislikes = empty($data['Dislikes']) ? 0 : $data['Dislikes'];
+            // $articles->ListLikes = empty($data['ListLikes']) ? array() : $data['ListLikes'];
+            // $articles->ListDislikes = empty($data['ListDislikes']) ? array() : $data['ListDislikes'];
+            switch ($articles->update()) {
+                case 1:
+                    deliver_response(200, "Article updated", $articles->getModifiedArticle());
+                    break;
+                case -1:
+                    deliver_response(400, $articles->getErrorMessage(), NULL);
+                    break;
+                default:
+                    deliver_response(500, "Internal server error", NULL);
+            }
         }
     }
 

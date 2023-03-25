@@ -14,7 +14,8 @@ class Article extends Database{
         $stmt = $pdo->prepare($sql);
         $stmt->bindValue(':Id', $id, PDO::PARAM_INT);
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return end($result);
     }
 
     public function selectAll(){
