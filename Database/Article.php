@@ -5,7 +5,7 @@ include_once DATABASE_PATH . "Database.php";
 class Article extends Database{
     private $db = null;
     public function __construct(){
-        $this->db = self::getInstance();
+        $this->db = Database::getInstance();
     }
 
     public function select($id){
@@ -59,9 +59,13 @@ class Article extends Database{
         $stmt = $pdo->prepare($sql);
         $stmt->bindValue(':Title', $data['Title']);
         $stmt->bindValue(':Content', $data['Content']);
-        $stmt->bindValue(':DateModif', $data['DateModif']);
-        $stmt->bindValue(':DatePub', $data['DatePub']);
+        $stmt->bindValue(':DateModif', $data['DateModified']);
+        $stmt->bindValue(':DatePub', $data['DateCreated']);
         $stmt->bindValue(':IdUser', $data['IdUser'], PDO::PARAM_INT);
         return $stmt;
+    }
+
+    public function getlastInsertId(){
+        return $this->db->getPDO()->lastInsertId();
     }
 }

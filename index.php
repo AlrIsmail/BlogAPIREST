@@ -56,6 +56,7 @@ if ($controllerInstance == null) {
 }
 $action = isset($action) ? $action : "";
 $method = $_SERVER["REQUEST_METHOD"];
+
 try{
     switch ($method) {
         case "POST":
@@ -78,6 +79,7 @@ try{
             break;
     }
 }catch(Exception $e){
-    header('HTTP/1.1 404 Action Not Found');
+    deliver_response(404, $e->getMessage(), null);
     exit();
 }
+echo 'done';

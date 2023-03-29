@@ -111,12 +111,25 @@ class Articles{
 
     }
 
-    public function create()
-    {
-        // check the validity of the information before creating the article
-        if(empty($this->Title) || empty($this->Content) || empty($this->IdUser) || !is_numeric($this->IdUser) || !is_string($this->Title) || !is_string($this->Content)){
+    public function dataControl($data){
+        if (empty($data['title']) || empty($data['content']) || !isset($data['dateCreated']) || !isset($data['dateModified'])) {
+            $message = "Bad request";
+            $message .= empty($data['title']) ? " title is missing" : "";
+            $message .= empty($data['content']) ? " content is missing" : "";
+            $message .= !isset($data['dateCreated']) ? " dateCreated is missing" : "";
+            $message .= !isset($data['dateModified']) ? " dateModified is missing" : "";
             return -1;
         }
+        $this->IdUser = $data['author'];
+        $this->Title = $data['title'];
+        $this->Content = $data['content'];
+        $this->DateCreated = empty($data['DateCreated']) ? date("Y-m-d H:i:s") : date($data['DateCreated']);
+        $this->DateModified = empty($data['DateModified']) ? date("Y-m-d H:i:s") : date($data['DateModified']);
+        return 1;
+    }
+
+    public function create()
+    {
         if (empty($this->DateCreated)) {
             $this->DateCreated = date("Y-m-d H:i:s");
         }
@@ -233,7 +246,8 @@ class Articles{
 
     public function getPostedArticle()
     {
-        $idArticle = $this->dao->getPDO()->lastInsertId();
+
+        $idArticle = $this->dao->getlastInsertId();
         return array($this->dao->select($idArticle));
     }
 

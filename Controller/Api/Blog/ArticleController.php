@@ -49,19 +49,24 @@ class ArticleController
         $articles = new Articles();
         if (empty($_GET['id'])) {
             deliver_response(400, "Bad request... missing the id of the article", NULL);
+            exit();
         }
         if (!is_numeric($_GET['id'])) {
             deliver_response(400, "Bad request... the id needs to be a number", NULL);
+            exit();
         }
         if ($_GET['id'] < 0) {
             deliver_response(400, "Bad request... the id needs to be a positive number", NULL);
+            exit();
         }
         if (strpos($_GET['id'], '.') !== false) {
             deliver_response(400, "Bad request... the id needs to be an integer", NULL);
+            exit();
         }
         $data = $articles->getOneData($this->role, $_GET['id']);
         if (empty($data)) {
             deliver_response(404, "Not found... the article with the id ".$_GET['id']."does not exists", NULL);
+            exit();
         }
         deliver_response(200, "Article found :)", $data);
     }
@@ -85,27 +90,24 @@ class ArticleController
     public function PublishPostAction(){
         if ($this->role !== 'publisher') {
             deliver_response(401, "Unauthorized... only publishers can publish", NULL);
+            exit();
         }
-
-        $data = json_decode(file_get_contents('php://input'), true, 512, JSON_THROW_ON_ERROR);
-
-        if (empty($data['title']) || empty($data['content'] || empty(['author']))) {
-            $message = "Bad request";
-            $message .= empty($data['title']) ? " title is missing" : "";
-            $message .= empty($data['content']) ? " content is missing" : "";
-            $message .= empty($data['author']) ? " author is missing" : "";
-            deliver_response(400, $message, NULL);
-        }
+        $data = json_decode(file_get_contents('php://input'), true, 512);
 
         $articles = new Articles();
 
-        // TODO : check the validity of the information sent and sql insertion if something is wrong create() will return -1
-        $articles->IdUser = ($data['id'] === $this->idUser) ? $data['id'] : 0;
-        $articles->Title = $data['title'];
-        $articles->Content = $data['content'];
-        $articles->DateCreated = empty($data['DateCreated']) ? date("Y-m-d H:i:s") : $data['DateCreated'];
-        $articles->DateModified = empty($data['DateModified']) ? date("Y-m-d H:i:s") : $data['DateModified'];
 
+        if(!empty($data['author']) && $this->idUser !== $data['author']){
+            deliver_response(401, "Unauthorized... the user is not valid", NULL);
+            exit();
+        }
+        switch($articles->dataControl($data)){
+            case -1:
+                deliver_response(400, "Bad Request... ".$articles->getErrorMessage(), NULL);
+                exit();
+            default:
+                break;
+        }
         switch ($articles->create()) {
             case 1:
                 deliver_response(200, "Success... Article created", $articles->getPostedArticle());
@@ -123,6 +125,7 @@ class ArticleController
     public function VotePostAction(){
         if ($this->role !== 'publisher') {
             deliver_response(401, "Unauthorized... only publishers can publish or vote", NULL);
+            exit();
         }
 
         $data = json_decode(file_get_contents('php://input'), true, 512, JSON_THROW_ON_ERROR);
@@ -154,6 +157,7 @@ class ArticleController
             $listDislikes = explode(",", $article->ListDislikes);
             if (!in_array($this->idUser, $listLikes) && !in_array($this->idUser, $listDislikes)) {
                 deliver_response(400, "Bad request... you have not voted yet use POST to vote", NULL);
+                exit();
             }
         }
 
@@ -180,7 +184,7 @@ class ArticleController
         if ($this->role !== 'publisher') {
             deliver_response(401, "Unauthorized... Only publisher can modify a post or a vote", NULL);
         }
-        if (empty($_GET['action'])) {
+        else if (empty($_GET['action'])) {
             deliver_response(400, "Bad request... missing action the add either Blog/Publish or Blog/Vote", NULL);
         }
     }
@@ -189,6 +193,7 @@ class ArticleController
 
         if ($this->role !== 'publisher') {
             deliver_response(401, "Unauthorized... Only publisher can modify a post or a vote", NULL);
+
         }
         $data = json_decode(file_get_contents('php://input'), true);
 
@@ -229,12 +234,14 @@ class ArticleController
 
         if ($this->role !== 'publisher') {
             deliver_response(401, "Unauthorized... Only publisher can modify a post or a vote", NULL);
+            exit();
         }
 
         $data = json_decode(file_get_contents('php://input'), true);
 
         if (empty($_GET['id'])) {
             deliver_response(400, "Bad request messing the id of the article", NULL);
+            exit();
         }
 
         $articles = new Articles();
@@ -285,9 +292,11 @@ class ArticleController
     {
         if ($this->role !== 'publisher' && $this->role !== 'admin') {
             deliver_response(401, "Unauthorized... only the admin or the publisher can delete articles", NULL);
+            exit();
         }
         if (empty($_GET['action'])) {
             deliver_response(400, "Bad request... missing action the add either Blog/Publish or Blog/Vote", NULL);
+            exit();
         }
     }
 
@@ -301,11 +310,13 @@ class ArticleController
             $message = "Bad request...";
             $message .= empty($data['id']) ? " id is missing" : "";
             deliver_response(400, $message, NULL);
+            exit();
         }
         $articles = new Articles();
         $article = $articles->getById($data['id']);
         if($this->role == 'publisher' && $article->IdUser != $this->idUser){
             deliver_response(401, "Unauthorized... only the publisher of the article can delete articles", NULL);
+            exit();
         }
        
         // check if the article is published by the publisher
@@ -331,19 +342,23 @@ class ArticleController
     public function VoteDeleteAction(){
         if ($this->role !== 'publisher') {
             deliver_response(401, "Unauthorized... only the publisher can delete his vote", NULL);
+            exit ();
         }
         if (empty($_GET['id'])) {
             $message = "Bad request...";
             $message .= empty($_GET['id']) ? " Article id is missing which must be passed in the url Vote/{id}" : "";
             deliver_response(400, $message, NULL);
+            exit ();
         }
         $art = new Articles();
         $article = $art->getById($_GET['id']);
         if (empty($article->IdArticle)) {
             deliver_response(404, "Bad Request ... Article not found", NULL);
+            exit ();
         }
         if($this->role == 'publisher' && $article->IdUser != $this->idUser){
             deliver_response(401, "Unauthorized... only the publisher of the article can delete articles", NULL);
+            exit ();
         }
         // TODO : check the validity of the information sent and sql insertion if something is wrong create() will return -1
         if ($this->role == 'publisher' && $article->IdUser == $this->idUser)
