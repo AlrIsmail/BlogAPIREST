@@ -111,20 +111,77 @@ class Articles{
 
     }
 
-    public function dataControl($data){
+    public function publishPostDataControl($data){
         if (empty($data['title']) || empty($data['content']) || !isset($data['dateCreated']) || !isset($data['dateModified'])) {
-            $message = "Bad request";
-            $message .= empty($data['title']) ? " title is missing" : "";
-            $message .= empty($data['content']) ? " content is missing" : "";
-            $message .= !isset($data['dateCreated']) ? " dateCreated is missing" : "";
-            $message .= !isset($data['dateModified']) ? " dateModified is missing" : "";
+            $this->errorMessage = "Bad request";
+            $this->errorMessage .= empty($data['title']) ? " title is missing" : "";
+            $this->errorMessage .= empty($data['content']) ? " content is missing" : "";
+            $this->errorMessage .= !isset($data['dateCreated']) ? " dateCreated is missing" : "";
+            $this->errorMessage .= !isset($data['dateModified']) ? " dateModified is missing" : "";
             return -1;
         }
-        $this->IdUser = $data['author'];
         $this->Title = $data['title'];
         $this->Content = $data['content'];
         $this->DateCreated = empty($data['DateCreated']) ? date("Y-m-d H:i:s") : date($data['DateCreated']);
         $this->DateModified = empty($data['DateModified']) ? date("Y-m-d H:i:s") : date($data['DateModified']);
+        return 1;
+    }
+
+    public function VotePostDataControl($data){
+        if(!isset($data['like'])||!isset($data['dislike'])){
+            $this->errorMessage = "Bad request";
+            $this->errorMessage .= !isset($data['like']) ? " like is missing" : "";
+            $this->errorMessage .= !isset($data['dislike']) ? " dislike is missing" : "";
+            return -1;
+        }
+        //if the likes and dislikes are equal to 1 at the same time
+        if($data['like'] == 1 && $data['dislike'] == 1){
+            $this->errorMessage = "Bad request";
+            $this->errorMessage .= "Cannot like and dislike an article at the same time";
+            return -1;
+        }
+        $this->Likes = (int) $data['like'];
+        $this->Dislikes = (int) $data['dislike'];
+        return 1;
+    }
+
+    public function publishPutDataControl($data){
+        if(empty($data['title']) || empty($data['content']) || !isset($data['dateCreated'])|| !isset($data['dateModified'])){
+            $this->errorMessage = "Bad request";
+            $this->errorMessage .= empty($data['title']) ? " title is missing" : "";
+            $this->errorMessage .= empty($data['content']) ? " content is missing" : "";
+            $this->errorMessage .= !isset($data['dateCreated']) ? " dateCreated is missing" : "";
+            $this->errorMessage .= !isset($data['dateModified']) ? " dateModified is missing" : "";
+            return -1;
+        }
+        $this->Title = htmlspecialchars($data['title']);
+        $this->Content = htmlspecialchars($data['content']);
+        $this->DateCreated = date($data['dateCreated']);
+        if(empty($data['dateModified'])){
+            $this->DateModified = date("Y-m-d H:i:s");
+        }else{
+            $this->DateModified = date($data['dateModified']);
+        }
+        return 1;
+    }
+
+    public function votePutDataControl($data,$idArticle){
+        if(!isset($idArticle['id']) || !isset($data['like'])||!isset($data['dislike'])){
+            $this->errorMessage = "Bad request";
+            $this->errorMessage .= !isset($idArticle['id']) ? " idArticle is missing" : "";
+            $this->errorMessage .= !isset($data['like']) ? " like is missing" : "";
+            $this->errorMessage .= !isset($data['dislike']) ? " dislike is missing" : "";
+            return -1;
+        }
+        //if the likes and dislikes are equal to 1 at the same time
+        if($data['like'] == 1 && $data['dislike'] == 1){
+            $this->errorMessage = "Bad request";
+            $this->errorMessage .= "Cannot like and dislike an article at the same time";
+            return -1;
+        }
+        $this->Likes = (int) $data['like'];
+        $this->Dislikes = (int) $data['dislike'];
+        $this->IdArticle = (int) $idArticle['id'];
         return 1;
     }
 
@@ -148,11 +205,6 @@ class Articles{
             "Content" => $this->Content,
             "DateCreated" => $this->DateCreated,
             "DateModified" => $this->DateModified,
-            // TODO : add the likes and dislikes ? or not ? because in the db it is not implemented
-            /*"Likes" => $this->Likes,
-            "Dislikes" => $this->Dislikes,
-            "ListLikes" => $this->ListLikes,
-            "ListDislikes" => $this->ListDislikes*/
         );
         try {
             $this->dao->insertArticle($data);
@@ -180,6 +232,7 @@ class Articles{
             "Title" => $this->Title,
             "Content" => $this->Content,
             "DateModified" => $this->DateModified,
+            "DateCreated" => $this->DateCreated
         );
         try {
             $this->dao->updateArticle($this->IdArticle,$data);

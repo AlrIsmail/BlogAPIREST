@@ -11,7 +11,6 @@ class ArticleController
         $jwt = get_bearer_token();
         /// verify the validity of the token
         if (!is_jwt_valid($jwt)) {
-            #todo : verify if we need to send a response
             //deliver_response(401, "Unauthorized", NULL);
             $this->role = 'guest';
         } else {
@@ -95,13 +94,9 @@ class ArticleController
         $data = json_decode(file_get_contents('php://input'), true, 512);
 
         $articles = new Articles();
-
-
-        if(!empty($data['author']) && $this->idUser !== $data['author']){
-            deliver_response(401, "Unauthorized... the user is not valid", NULL);
-            exit();
-        }
-        switch($articles->dataControl($data)){
+        $articles->IdUser = $this->idUser;
+        
+        switch($articles->publishPostDataControl($data)){
             case -1:
                 deliver_response(400, "Bad Request... ".$articles->getErrorMessage(), NULL);
                 exit();
@@ -128,7 +123,7 @@ class ArticleController
             exit();
         }
 
-        $data = json_decode(file_get_contents('php://input'), true, 512, JSON_THROW_ON_ERROR);
+        $data = json_decode(file_get_contents('php://input'), true, 512);
         
         if (empty($_GET['id'])) {
             deliver_response(400, "Bad request... messing the id of the article", NULL);
@@ -136,10 +131,17 @@ class ArticleController
         $articles = new Articles();
         $articles->IdArticle = $_GET['id'];
         $articles->IdUser = $this->idUser;
-        $articles->Likes = isset($data['like']) ? $data['like'] : 0;
-        $articles->Dislikes = isset($data['dislike']) ? $data['dislike'] : 0;
-        if ($articles->Likes == 1 && $articles->Dislikes == 1) {
-            deliver_response(400, "Bad request can't like and dislike an article at the same time", NULL);
+        // $articles->Likes = isset($data['like']) ? $data['like'] : 0;
+        // $articles->Dislikes = isset($data['dislike']) ? $data['dislike'] : 0;
+        // if ($articles->Likes == 1 && $articles->Dislikes == 1) {
+        //     deliver_response(400, "Bad request can't like and dislike an article at the same time", NULL);
+        // }
+        switch($articles->votePostDataControl($data)){
+            case -1:
+                deliver_response(400, "Bad Request... ".$articles->getErrorMessage(), NULL);
+                exit();
+            default:
+                break;
         }
         $article = $articles->getById($_GET['id']);
         if (empty($article)) {
@@ -197,25 +199,19 @@ class ArticleController
         }
         $data = json_decode(file_get_contents('php://input'), true);
 
-
-        if (empty($_GET['id']) || empty($data['title']) || empty($data['content'] ||
-                empty(['author'])) || empty($data['dateCreated'])) {
-                $message = "Bad request";
-                $message .= empty($_GET['IdArticle']) ? " IdArticle is missing" : "";
-                $message .= empty($data['title']) ? " title is missing" : "";
-                $message .= empty($data['content']) ? " content is missing" : "";
-                $message .= empty($data['author']) ? " author is missing" : "";
-                $message .= empty($data['dateCreated']) ? " dateCreated is missing" : "";
-                deliver_response(400, $message, NULL);
+        if (empty($_GET['id'])) {
+            deliver_response(400, "Bad request... messing the id of the article", NULL);
         }
+        
         $articles = new Articles();
-
-        $articles->IdUser = ($data['author'] == $this->idUser) ? $data['author'] : 0;
-        $articles->IdArticle = $_GET['IdArticle'];
-        $articles->Title = $data['title'];
-        $articles->Content = $data['content'];
-        $articles->DateCreated = $data['DateCreated'];
-        $articles->DateModified = empty($data['DateModified']) ? date("Y-m-d H:i:s") : $data['DateModified'];
+        
+        switch($articles->publishPutDataControl($data)){
+            case -1:
+                deliver_response(400, "Bad Request... ".$articles->getErrorMessage(), NULL);
+                exit();
+            default:
+                break;
+        }
 
         switch ($articles->update()) {
             case 1:
@@ -245,13 +241,14 @@ class ArticleController
         }
 
         $articles = new Articles();
-        $articles->IdArticle = $_GET['id'];
         $articles->IdUser = $this->idUser;
-        $articles->Likes = isset($data['like']) ? $data['like'] : 0;
-        $articles->Dislikes = isset($data['dislike']) ? $data['dislike'] : 0;
 
-        if ($articles->Likes == 1 && $articles->Dislikes == 1) {
-            deliver_response(400, "Bad request can't like and dislike an article at the same time", NULL);
+        switch($articles->votePutDataControl($data,$_GET)){
+            case -1:
+                deliver_response(400, "Bad Request... ".$articles->getErrorMessage(), NULL);
+                exit();
+            default:
+                break;
         }
 
         $article = $articles->getById($_GET['id']);
@@ -267,10 +264,10 @@ class ArticleController
                 deliver_response(400, "Bad request : you already voted on this article use PUT instead", NULL);
             }
         }
-
+        echo $articles->Dislikes;
         switch ($articles->updateVote()) {
             case 1:
-                deliver_response(200, "Success... Vote added", $articles->getPostedArticle());
+                deliver_response(200, "Success... Vote added", Null);
                 break;
             case -1:
                 deliver_response(400, "Bad Request... ".$articles->getErrorMessage(), NULL);
@@ -290,7 +287,7 @@ class ArticleController
     // url : http://localhost/BlogAPIREST/index.php/v1/Api/Blog//
     public function DeleteAction()
     {
-        if ($this->role !== 'publisher' && $this->role !== 'admin') {
+        if ($this->role !== 'publisher' && $this->role !== 'moderator') {
             deliver_response(401, "Unauthorized... only the admin or the publisher can delete articles", NULL);
             exit();
         }
@@ -302,30 +299,24 @@ class ArticleController
 
     // url : http://localhost/BlogAPIREST/index.php/v1/Api/Blog/Publish/
     public function PublishDeleteAction(){
-        if ($this->role !== 'publisher' && $this->role !== 'admin') {
+        echo $this->role;
+        if ($this->role != 'publisher' && $this->role != 'moderator') {
             deliver_response(401, "Unauthorized... only the admin or the publisher can delete articles", NULL);
+            exit();
         }
-        $data = json_decode(file_get_contents('php://input'), true);
-        if (empty($data['id'])) {
+        if (empty($_GET['id'])) {
             $message = "Bad request...";
-            $message .= empty($data['id']) ? " id is missing" : "";
+            $message .= empty($_GET['id']) ? " id is missing" : "";
             deliver_response(400, $message, NULL);
             exit();
         }
         $articles = new Articles();
-        $article = $articles->getById($data['id']);
+        $article = $articles->getById($_GET['id']);
         if($this->role == 'publisher' && $article->IdUser != $this->idUser){
             deliver_response(401, "Unauthorized... only the publisher of the article can delete articles", NULL);
             exit();
         }
-       
-        // check if the article is published by the publisher
-        if (($this->role == 'publisher' && $article->IdUser == $this->idUser) || $this->role == 'admin') {
-            $articles->IdUser = $article->IdUser;
-        }
-        else
-            deliver_response(401, "Unauthorized... only the publisher of the article can delete his articles or the admin", NULL);
-        
+        $articles->IdUser = $article->IdUser;
         switch ($articles->delete()) {
             case 1:
                 deliver_response(200, "Success... Article deleted", $articles->getPostedArticle());
