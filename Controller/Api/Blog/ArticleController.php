@@ -202,6 +202,14 @@ class ArticleController
         }
         
         $articles = new Articles();
+        // TODO: check if the user is the publisher of the article before updating it
+        $idUser = $articles->getById($_GET['id'])->IdUser;
+        if ($idUser !== $this->idUser) {
+            deliver_response(401, "Unauthorized... Only the publisher of the article can modify it", NULL);
+            exit();
+        }
+        $articles->IdArticle = $_GET['id'];
+        $articles->IdUser = $this->idUser;
         
         switch($articles->publishPutDataControl($data)){
             case -1:
