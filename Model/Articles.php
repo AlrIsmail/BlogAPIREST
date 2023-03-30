@@ -259,11 +259,11 @@ class Articles{
         $daoEvaluate = new Evaluate();
         try{
             if ($this->Likes == 1){
-                $result = $daoEvaluate->createLike($this->IdArticle,$this->IdUser);
+                $daoEvaluate->createLike($this->IdArticle,$this->IdUser);
             } else {
-                $result = $daoEvaluate->createDislike($this->IdArticle,$this->IdUser);
+                $daoEvaluate->createDislike($this->IdArticle,$this->IdUser);
             }
-            return $result;
+            return 1;
         } catch (Exception $e) {
             $this->errorMessage = $e->getMessage();
             return -1;
@@ -275,11 +275,11 @@ class Articles{
         $daoEvaluate = new Evaluate();
         try{
             if ($this->Likes == 1){
-                $result = $daoEvaluate->updateLike($this->IdArticle,$this->IdUser);
+                $daoEvaluate->updateLike($this->IdArticle,$this->IdUser);
             } else {
-                $result = $daoEvaluate->updateDislike($this->IdArticle,$this->IdUser);
+                $daoEvaluate->updateDislike($this->IdArticle,$this->IdUser);
             }
-            return $result;
+            return 1;
         } catch (Exception $e) {
             $this->errorMessage = $e->getMessage();
             return -1;
@@ -339,11 +339,27 @@ class Articles{
                 $article["nbdislikes"] = $art->Dislikes;
             }
             if ($role == 'moderator') {
-                $article["listlies"] = $art->ListLikes;
+                $article["listlikes"] = $art->ListLikes;
                 $article["listdislikes"] = $art->ListDislikes;
             }
             $data[] = $article;
         }
         return $data;
+    }
+
+    public function getVotedArticle(){
+        $daoEvaluate = new Evaluate();
+        $data = $daoEvaluate->getEvaluate($this->IdArticle, $this->IdUser);
+        return $data;
+    }
+
+    public function checkIfUserHasAlreadyVoted(){
+        $daoEvaluate = new Evaluate();
+        $data = $daoEvaluate->getEvaluate($this->IdArticle, $this->IdUser);
+        if (empty($data)){
+            return 0;
+        } else {
+            return 1;
+        }
     }
 }

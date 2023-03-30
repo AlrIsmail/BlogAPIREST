@@ -8,12 +8,20 @@ class Evaluate extends Database{
         $this->db= parent::getInstance();
     }
 
+    public function getEvaluate($idArticle, $idUser){
+        $data = array(
+            'IdArticle' => $idArticle,
+            'IdUser' => $idUser
+        );
+        return $this->db->selectWhere($this->table, $data);
+    }
+
     public function createLike($idArticle, $idUser){
         $data = array(
             'IdArticle' => $idArticle,
             'IdUser' => $idUser,
-            'Like' => 1,
-            'Dislike' => 0
+            'Liked' => 1,
+            'Disliked' => 0
         );
         return $this->db->insert($this->table, $data);
     }
