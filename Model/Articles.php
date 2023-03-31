@@ -289,8 +289,8 @@ class Articles{
     public function deleteVote(){
         $daoEvaluate = new Evaluate();
         try{
-            $result = $daoEvaluate->delete($this->IdArticle,$this->IdUser);
-            return $result;
+            $daoEvaluate->deleteVote($this->IdArticle,$this->IdUser);
+            return 1;
         } catch (Exception $e) {
             $this->errorMessage = $e->getMessage();
             return -1;
