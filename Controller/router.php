@@ -11,6 +11,9 @@ function GetControllerInstance($type, $controller)
                     case "Blog":
                         require CONTROLLER_PATH . "Api/Blog/ArticleController.php";
                         return new ArticleController();
+                    case "Client":
+                        require CONTROLLER_PATH . "Client/ClientController.php";
+                        return new ClientController();
                     default:
                         header("HTTP/1.1 404 Not Found");
                 }

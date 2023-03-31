@@ -24,6 +24,10 @@ class AuthController{
 
         $data = (array)json_decode(file_get_contents("php://input"), TRUE, 512, JSON_THROW_ON_ERROR);
 
+        if (empty($data['username']) || empty($data['password'])) {
+            deliver_response(400, "Login failed username or password missing", NULL);
+        }
+
         // username and password given by the user
         $username = $data['username'];
         $password = $data['password'];
