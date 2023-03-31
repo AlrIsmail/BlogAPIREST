@@ -216,10 +216,6 @@ class Articles{
     }
 
     public function update(){
-        // Check the validity of the information before updating the article
-        if(empty($this->Title) || empty($this->Content) || empty($this->IdUser) || !is_numeric($this->IdUser) || !is_string($this->Title) || !is_string($this->Content)){
-            return -1;
-        }
         if (empty($this->DateModified)) {
             $this->DateModified = date("Y-m-d H:i:s");
         }

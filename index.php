@@ -82,4 +82,3 @@ try{
     deliver_response(404, $e->getMessage(), null);
     exit();
 }
-echo 'done';
