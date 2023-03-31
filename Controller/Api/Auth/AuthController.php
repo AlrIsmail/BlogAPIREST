@@ -15,7 +15,7 @@ class AuthController{
     /**
      * @throws JsonException
      */
-    public function PostAction($data){
+    public function PostAction(){
         // define the secret key pour la génération des jetons JWT
         $jwt_secret = 'secret';
 
