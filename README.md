@@ -4,6 +4,7 @@
 
 Backend d'une solution de gestion d'articles de blogs.
 Un export de notre base de données est disponible dans le dossier Resources situé à la racine du projet.
+Une collection de requêtes clientes réalisées avec POSTMAN est également disponible dans ce même dossier.
 
 ## URL d'accès à notre Frontend
 

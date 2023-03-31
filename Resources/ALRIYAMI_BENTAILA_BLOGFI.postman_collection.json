@@ -1,0 +1,401 @@
+{
+	"info": {
+		"_postman_id": "18786dbf-5f07-438a-b5d6-95ef114ccbd9",
+		"name": "ALRIYAMI_BENTAILA_BLOGFI",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25991671"
+	},
+	"item": [
+		{
+			"name": "AUTH JTW TOKEN MODERATOR Fabio (IdUser 1)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\" : \"Yael\",\r\n    \"password\" : \"pwdYael567\"\r\n}"
+				},
+				"url": {
+					"raw": "https://blogfi.faister.fr/index.php/v1/Api/Auth//",
+					"protocol": "https",
+					"host": [
+						"blogfi",
+						"faister",
+						"fr"
+					],
+					"path": [
+						"index.php",
+						"v1",
+						"Api",
+						"Auth",
+						"",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AUTH JTW TOKEN PUBLISHER ISMAIL (IdUser 2)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\" : \"Ismail\",\r\n    \"password\" : \"pwsIsmail234\"\r\n}"
+				},
+				"url": {
+					"raw": "https://blogfi.faister.fr/index.php/v1/Api/Auth//",
+					"protocol": "https",
+					"host": [
+						"blogfi",
+						"faister",
+						"fr"
+					],
+					"path": [
+						"index.php",
+						"v1",
+						"Api",
+						"Auth",
+						"",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AUTH JTW TOKEN PUBLISHER YATO (IdUser 5)",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\" : \"Yato\",\r\n    \"password\" : \"pwsYato234\"\r\n}"
+				},
+				"url": {
+					"raw": "https://blogfi.faister.fr/index.php/v1/Api/Auth//",
+					"protocol": "https",
+					"host": [
+						"blogfi",
+						"faister",
+						"fr"
+					],
+					"path": [
+						"index.php",
+						"v1",
+						"Api",
+						"Auth",
+						"",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET ARTICLES",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiMyIsInJvbGUiOiJNb2RlcmF0b3IiLCJleHAiOjE2ODAyOTkzNDV9._xsmtDs-phNIz3xY3YdkG8bn3H_aN_b3slrcOpzz_Mg",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "https://blogfi.faister.fr/index.php/v1/Api/Blog/Articles/",
+					"protocol": "https",
+					"host": [
+						"blogfi",
+						"faister",
+						"fr"
+					],
+					"path": [
+						"index.php",
+						"v1",
+						"Api",
+						"Blog",
+						"Articles",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET ARTICLES MODERATOR",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiMyIsInJvbGUiOiJNb2RlcmF0b3IiLCJleHAiOjE2ODAyOTk5MDd9.ZZ0s-JDHhI9JTUM9bBFFtIfUcd47FADtGrzS9z_wtOM",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://blogfi.faister.fr/index.php/v1/Api/Blog/Articles/",
+					"protocol": "https",
+					"host": [
+						"blogfi",
+						"faister",
+						"fr"
+					],
+					"path": [
+						"index.php",
+						"v1",
+						"Api",
+						"Blog",
+						"Articles",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET ARTICLE BY ID",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiMSIsInJvbGUiOiJNb2RlcmF0b3IiLCJleHAiOjE2ODAxNzg5Mzd9.pH2RDr9paZoSZI66KknpxX-8TDz6tropDZEJXpKnDhY",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://blogfi.faister.fr/index.php/v1/Api/Blog/Article/6",
+					"protocol": "https",
+					"host": [
+						"blogfi",
+						"faister",
+						"fr"
+					],
+					"path": [
+						"index.php",
+						"v1",
+						"Api",
+						"Blog",
+						"Article",
+						"6"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Publish Article",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiMiIsInJvbGUiOiJQdWJsaXNoZXIiLCJleHAiOjE2ODAyOTk2NDB9.reWSL_VHQen-yXfHL6u35o35_yKlLQKlwDW1NAm8h3o",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\" : \"Pourquoi le BUT Informatique est une bonne formation\",\r\n    \"content\" : \"On y apprend le JavaScript... etc\",\r\n    \"dateCreated\" : \"null\",\r\n    \"dateModified\" : \"null\"\r\n}"
+				},
+				"url": {
+					"raw": "https://blogfi.faister.fr/index.php/v1/Api/Blog/Publish/",
+					"protocol": "https",
+					"host": [
+						"blogfi",
+						"faister",
+						"fr"
+					],
+					"path": [
+						"index.php",
+						"v1",
+						"Api",
+						"Blog",
+						"Publish",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modify Article",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiMiIsInJvbGUiOiJQdWJsaXNoZXIiLCJleHAiOjE2ODAzMDAwNjJ9.zFhp-kqYHMOwkuivfvk5rCpBn8CaOYmIINK1G5vnbiU",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\" : \"Test de l'api publiée !\",\r\n    \"content\" : \"la modification marche aussi !\",\r\n    \"dateCreated\" : \"2023-03-31\",\r\n    \"dateModified\" : \"2023-03-31\"\r\n}"
+				},
+				"url": {
+					"raw": "https://blogfi.faister.fr/index.php/v1/Api/Blog/Publish/5",
+					"protocol": "https",
+					"host": [
+						"blogfi",
+						"faister",
+						"fr"
+					],
+					"path": [
+						"index.php",
+						"v1",
+						"Api",
+						"Blog",
+						"Publish",
+						"5"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Article",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiMyIsInJvbGUiOiJNb2RlcmF0b3IiLCJleHAiOjE2ODAyOTk5MDd9.ZZ0s-JDHhI9JTUM9bBFFtIfUcd47FADtGrzS9z_wtOM",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": []
+				},
+				"url": {
+					"raw": "https://blogfi.faister.fr/index.php/v1/Api/Blog/Publish/7",
+					"protocol": "https",
+					"host": [
+						"blogfi",
+						"faister",
+						"fr"
+					],
+					"path": [
+						"index.php",
+						"v1",
+						"Api",
+						"Blog",
+						"Publish",
+						"7"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Vote on Article",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiMiIsInJvbGUiOiJQdWJsaXNoZXIiLCJleHAiOjE2ODAzMDAwNjJ9.zFhp-kqYHMOwkuivfvk5rCpBn8CaOYmIINK1G5vnbiU",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n   \"like\" : \"0\",\r\n   \"dislike\" : \"1\" \r\n}"
+				},
+				"url": {
+					"raw": "https://blogfi.faister.fr/index.php/v1/Api/Blog/Vote/4",
+					"protocol": "https",
+					"host": [
+						"blogfi",
+						"faister",
+						"fr"
+					],
+					"path": [
+						"index.php",
+						"v1",
+						"Api",
+						"Blog",
+						"Vote",
+						"4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modify Vote on Article",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiMiIsInJvbGUiOiJQdWJsaXNoZXIiLCJleHAiOjE2ODAzMDAwNjJ9.zFhp-kqYHMOwkuivfvk5rCpBn8CaOYmIINK1G5vnbiU",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"like\" : \"0\",\r\n    \"dislike\" : \"1\"\r\n}"
+				},
+				"url": {
+					"raw": "https://blogfi.faister.fr/index.php/v1/Api/Blog/Vote/4",
+					"protocol": "https",
+					"host": [
+						"blogfi",
+						"faister",
+						"fr"
+					],
+					"path": [
+						"index.php",
+						"v1",
+						"Api",
+						"Blog",
+						"Vote",
+						"4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Vote",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiMiIsInJvbGUiOiJQdWJsaXNoZXIiLCJleHAiOjE2ODAzMDAwNjJ9.zFhp-kqYHMOwkuivfvk5rCpBn8CaOYmIINK1G5vnbiU",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://blogfi.faister.fr/index.php/v1/Api/Blog/Vote/4",
+					"protocol": "https",
+					"host": [
+						"blogfi",
+						"faister",
+						"fr"
+					],
+					"path": [
+						"index.php",
+						"v1",
+						"Api",
+						"Blog",
+						"Vote",
+						"4"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
