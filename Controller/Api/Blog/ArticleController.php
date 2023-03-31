@@ -350,15 +350,16 @@ class ArticleController
             deliver_response(404, "Bad Request ... Article not found", NULL);
             exit ();
         }
-        if($this->role == 'publisher' && $article->IdUser != $this->idUser){
-            deliver_response(401, "Unauthorized... only the publisher of the article can delete articles", NULL);
+        if($this->role == 'publisher' && $article->IdUser === $this->idUser){
+            deliver_response(401, "Unauthorized... only the voter of the article can delete his vote", NULL);
             exit ();
         }
-        // TODO : check the validity of the information sent and sql insertion if something is wrong create() will return -1
-        if ($this->role == 'publisher' && $article->IdUser == $this->idUser)
-            $art->IdUser = $this->idUser;
-        else
-            deliver_response(401, "Unauthorized... only the publisher who voted can delete his vote", NULL);
+        $art->IdUser = $this->idUser;	
+        $art->IdArticle = $article->IdArticle;
+        if ($art->checkIfUserHasAlreadyVoted() === 0) {
+            deliver_response(400, "Bad Request... you haven't voted yet", NULL);
+            exit ();
+        }
         switch ($art->deleteVote()) {
             case 1:
                 deliver_response(200, "Success... vote deleted", $art->getPostedArticle());
