@@ -3,6 +3,10 @@
 require_once "Config/Register.php";
 require(CONTROLLER_PATH . "router.php");
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 $type = null;
 $controller = null;
 $action = null;
@@ -18,29 +22,32 @@ if (in_array('v1', $uri)) {
 }else{
     // not found
     header('HTTP/1.1 404 Not Found');
+    echo "The file you're looking for ~does not~ exist or this version is not yet supported.";
+    exit;
+}
+if (count($uri_pattern) < count($uri)) {
+    header('HTTP/1.1 404 Not Found');
     echo "The file you're looking for ~does not~ exist.";
     exit;
 }
-if (count($uri_pattern) > count($uri)) {
-    header('HTTP/1.1 404 Not Found');
-    echo "The file you're looking for ~does not~ exist.";
-}else{
-    // check if pattern is correct
-    for ($i = 0; $i < count($uri_pattern); $i++) {
-        if ($uri_pattern[$i] == '{type}') {
-            $type = $uri[$i];
-        } elseif ($uri_pattern[$i] == '{controller}') {
-            $controller = $uri[$i];
-        } elseif ($uri_pattern[$i] == '{action}') {
-            $action = $uri[$i];
-        }elseif ($uri_pattern[$i] == '{id}') {
-            $_GET['id'] = intval($uri[$i]);
-        }else{
-           if ($uri_pattern[$i] != $uri[$i] && $uri_pattern[$i] != '{action}' && $uri_pattern[$i] != '{id}') {
-               header('HTTP/1.1 404 Not Found');
-               echo "The file you're looking for ~does not~ exist.";
-               exit;
-           }
+ // check if pattern is correct
+for ($i = 0; $i < count($uri_pattern); $i++) {
+    if ($uri_pattern[$i] == '{type}') {
+        $type = $uri[$i];
+    } elseif ($uri_pattern[$i] == '{controller}') {
+        $controller = $uri[$i];
+        if ($controller == "Auth") {
+            $i = count($uri_pattern);
+        }
+    } elseif ($uri_pattern[$i] == '{action}') {
+        $action = $uri[$i];
+    }elseif ($uri_pattern[$i] == '{id}') {
+        $_GET['id'] = intval($uri[$i]);
+    }else{
+        if ($uri_pattern[$i] != $uri[$i] && $uri_pattern[$i] != '{action}' && $uri_pattern[$i] != '{id}') {
+            header('HTTP/1.1 404 Not Found');
+            echo "The file you're looking for ~does not~ exist.";
+            exit;
         }
     }
 }
@@ -57,6 +64,10 @@ if ($controllerInstance == null) {
 $action = isset($action) ? $action : "";
 $method = $_SERVER["REQUEST_METHOD"];
 
+if($controller == "Client"){
+    $controllerInstance->{$action . 'Action'}();
+    exit();
+}
 try{
     switch ($method) {
         case "POST":
